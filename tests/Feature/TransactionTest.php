@@ -10,9 +10,11 @@ class TransactionTest extends TestCase
 {
     public function test_can_create_transaction()
     {
+        $timestamp = now()->subSeconds(30)->format('Y-m-d\TH:i:s.v\Z'); // Timestamp dentro do intervalo válido
+
         $response = $this->postJson('/api/transactions', [
             'amount' => '12.3343',
-            'timestamp' => '2023-08-07T09:59:51.312Z'
+            'timestamp' => $timestamp
         ]);
 
         $response->assertStatus(201);
@@ -20,9 +22,11 @@ class TransactionTest extends TestCase
 
     public function test_can_get_statistics()
     {
+        $timestamp = now()->subSeconds(30)->format('Y-m-d\TH:i:s.v\Z'); // Timestamp dentro do intervalo válido
+
         $this->postJson('/api/transactions', [
             'amount' => '12.3343',
-            'timestamp' => '2023-08-07T09:59:51.312Z'
+            'timestamp' => $timestamp
         ]);
 
         $response = $this->getJson('/api/statistics');
@@ -39,13 +43,41 @@ class TransactionTest extends TestCase
 
     public function test_can_delete_transactions()
     {
+        $timestamp = now()->subSeconds(30)->format('Y-m-d\TH:i:s.v\Z'); // Timestamp dentro do intervalo válido
+
         $this->postJson('/api/transactions', [
             'amount' => '12.3343',
-            'timestamp' => '2023-08-07T09:59:51.312Z'
+            'timestamp' => $timestamp
         ]);
 
         $response = $this->deleteJson('/api/transactions');
 
         $response->assertStatus(204);
+    }
+
+    public function test_transaction_outside_valid_interval()
+    {
+        $timestamp = now()->subSeconds(61)->format('Y-m-d\TH:i:s.v\Z'); // Timestamp fora do intervalo válido
+
+        $response = $this->postJson('/api/transactions', [
+            'amount' => '12.3343',
+            'timestamp' => $timestamp
+        ]);
+
+        // Verifica se a transação não é aceita e retorna 204
+        $response->assertStatus(204);
+    }
+
+    public function test_transaction_with_future_timestamp()
+    {
+        $timestamp = now()->addSeconds(65)->format('Y-m-d\TH:i:s.v\Z');  // Timestamp fora do intervalo válido
+
+        $response = $this->postJson('/api/transactions', [
+            'amount' => '12.3343',
+            'timestamp' => $timestamp
+        ]);
+
+        // Verifica se a transação não é aceita e retorna 204
+        $response->assertStatus(422);
     }
 }
