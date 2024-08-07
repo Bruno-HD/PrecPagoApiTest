@@ -1,0 +1,20 @@
+### Testar rota GET /routes
+GET http://localhost:8000/
+Accept: application/json
+
+### Testar rota POST /api/transactions
+POST http://localhost:8000/api/transactions
+Content-Type: application/json
+
+{
+  "amount": "12.334",
+  "timestamp": "{{now}}"
+}
+
+### Testar rota GET /api/statistics
+GET http://localhost:8000/api/statistics
+Accept: application/json
+
+### Testar rota DELETE /api/transactions
+DELETE http://localhost:8000/api/transactions
+Accept: application/json
